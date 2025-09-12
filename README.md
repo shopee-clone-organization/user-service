@@ -10,7 +10,7 @@
 
 ## Yêu cầu môi trường
 
-- Java 18
+- Java 21
 - Maven 3.5.5
 - Docker
 
