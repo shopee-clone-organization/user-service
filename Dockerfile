@@ -1,13 +1,13 @@
-# Stage 1: Build a JAR file
-FROM maven:3.8.5-openjdk-17 AS builder
+# Stage 1: Build với Maven và JDK 21
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Stage 2: Create the final, smaller image
-FROM openjdk:17-jre-slim
+# Stage 2: Runtime (chạy app với JRE/JDK 21 nhẹ hơn)
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 # Sao chép file JAR từ stage builder
 COPY --from=builder /app/target/*.jar app.jar
