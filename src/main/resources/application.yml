@@ -1,21 +1,20 @@
 server:
-  port: 8080 # Cổng mặc định
+  port: 8081
 
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:default_db}
-    username: ${DB_USER:user}
-    password: ${DB_PASSWORD:password}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update # update, validate, hoặc none cho production
+      ddl-auto: update # create: tạo bảng mới, update: cập nhật, dùng create cho dev
     show-sql: true
     properties:
       hibernate:
         format_sql: true
 
-# Cấu hình để actuator/health được public
 management:
   endpoints:
     web:

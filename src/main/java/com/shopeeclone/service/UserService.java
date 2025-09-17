@@ -1,13 +1,17 @@
 package com.shopeeclone.service;
 
-//package com.shopeeclone.user.service;
-
 import com.shopeeclone.dto.UserRegisterRequest;
 import com.shopeeclone.dto.UserLoginRequest;
 import com.shopeeclone.dto.UserResponse;
+import com.shopeeclone.model.User;
 
 public interface UserService {
+
     UserResponse register(UserRegisterRequest request);
-    String login(UserLoginRequest request);
-    UserResponse getCurrentUser(String token);
+
+    // Xác thực login, trả thông tin user để Gateway tạo JWT
+    UserResponse login(UserLoginRequest request);
+
+    // Lấy thông tin user dựa trên username hoặc token (Gateway đã validate)
+    UserResponse getCurrentUser(String username);
 }

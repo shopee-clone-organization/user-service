@@ -7,50 +7,56 @@ import com.shopeeclone.model.User;
 import com.shopeeclone.repository.UserRepository;
 import com.shopeeclone.service.UserService;
 import com.shopeeclone.util.JwtUtils;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserRepository repo;
-    private final BCryptPasswordEncoder encoder;
-    private final JwtUtils jwtUtils;
-
-    public UserServiceImpl(UserRepository repo, JwtUtils jwtUtils) {
-        this.repo = repo;
-        this.jwtUtils = jwtUtils;
-        this.encoder = new BCryptPasswordEncoder();
-    }
+   
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public UserResponse register(UserRegisterRequest request) {
-        if (repo.existsByUsername(request.getUsername()) || repo.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("User already exists");
-        }
-        User user = User.builder()
-                .username(request.getUsername())
-                .password(encoder.encode(request.getPassword()))
-                .email(request.getEmail())
-                .build();
-        repo.save(user);
-        return new UserResponse(user.getId(), user.getUsername(), user.getEmail());
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRoles(request.getRoles());
+        User saved = userRepository.save(user);
+
+        UserResponse response = new UserResponse();
+        response.setUsername(saved.getUsername());
+        response.setRoles(saved.getRoles());
+        return response;
     }
 
     @Override
-    public String login(UserLoginRequest request) {
-        User user = repo.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
-        if(!encoder.matches(request.getPassword(), user.getPassword())){
-            throw new RuntimeException("Invalid credentials");
-        }
-        return jwtUtils.generateToken(user.getUsername());
-    }
-
-    @Override
-    public UserResponse getCurrentUser(String token) {
-        String username = jwtUtils.extractUsername(token);
-        User user = repo.findByUsername(username)
+    public UserResponse login(UserLoginRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return new UserResponse(user.getId(), user.getUsername(), user.getEmail());
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        UserResponse response = new UserResponse();
+        response.setUsername(user.getUsername());
+        response.setRoles(user.getRoles());
+        return response;
+    }
+
+    @Override
+    public UserResponse getCurrentUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserResponse response = new UserResponse();
+        response.setUsername(user.getUsername());
+        response.setRoles(user.getRoles());
+        return response;
     }
 }

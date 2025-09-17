@@ -1,4 +1,4 @@
-package com.shopeeclone.service_template;
+package com.shopeeclone;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
